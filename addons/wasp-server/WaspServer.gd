@@ -6,9 +6,9 @@ const SIGNAL_PREFIX = "WASP_"
 var _wss: WebSocketServer = WebSocketServer.new()
 var _clients: Array = []
 
+var _show_warnings := true
 var _is_started := false
-
-var _id_counter := 0
+var _port := 14445
 
 signal client_connected(id)
 signal client_disconnected(id)
@@ -63,7 +63,8 @@ func _on_data_received(id: int) -> void:
 	var packet: PoolByteArray = peer.get_packet()
 	
 	if not peer.was_string_packet():
-		push_warning("Received binary packet")
+		if _show_warnings:
+			push_warning("Received binary packet")
 		return
 	
 	# Parse and validate message
@@ -71,46 +72,48 @@ func _on_data_received(id: int) -> void:
 	var jr: JSONParseResult = JSON.parse(packet.get_string_from_utf8())
 	
 	if jr.error != OK:
-		push_warning("JSON parsing error: %s" % jr.error_string)
+		if _show_warnings:
+			push_warning("JSON parsing error: %s" % jr.error_string)
 		return
 	
 	if not jr.result is Dictionary:
-		push_warning("JSON is not a dictionary\n%s" % jr.result)
+		if _show_warnings:
+			push_warning("JSON is not a dictionary\n%s" % jr.result)
 		return
 	
 	var data: Dictionary = jr.result
 	if not data.has("type"):
-		push_warning("Message doesn't have a type\n%s" % data)
+		if _show_warnings:
+			push_warning("Message doesn't have a type\n%s" % data)
 		return
 	
-	# print("Message: %s" % data)
+	print("Message: %s" % data)
 	
 	var sig: String = SIGNAL_PREFIX + data["type"]
 	if has_user_signal(sig):
-		if data.has("args"):
-			emit_signal(sig, data["args"])
-		else:
-			emit_signal(sig)
-	else:
+		emit_signal(sig, data)
+	elif _show_warnings:
 		push_warning("No listener for message type %s" % data["type"])
 
 
-func _get_message_id() -> int:
-	_id_counter += 1
-	return _id_counter
 
 
-
-
-func start_server(port: int = 14445) -> int:
+func start_server(port: int = 14445, show_warnings: bool = true) -> int:
 	_wss.stop()
+	
+	# range of listening ports
+	if port < 1 or port > 65535 :
+		return ERR_PARAMETER_RANGE_ERROR
+	
 	var err = _wss.listen(port)
 	if err != OK:
 		_is_started = false
 		set_process(false)
-		push_error("Wasp server was not started. Error num %d" % err)
+		push_error("Wasp Server was not started. Error num %d" % err)
 		return err
+	_show_warnings = show_warnings
 	_is_started = true
+	_port = port
 	set_process(true)
 	return OK
 
@@ -119,6 +122,14 @@ func stop_server() -> void:
 	_wss.stop()
 	_is_started = false
 	set_process(false)
+
+
+func is_listening() -> bool:
+	return _wss.is_listening()
+
+
+func get_listening_port() -> int:
+	return _port
 
 
 func disconnect_client(id: int) -> void:
@@ -147,47 +158,54 @@ func remove_listener(message_type: String, target: Object, method: String) -> vo
 
 
 # Send a raw message to a specific client
-# Intended to be used when more fields are needed in the message (nonce, ids, etc)
-func send_raw(id: int, data: PoolByteArray) -> void:
-	if not _wss.is_listening():
+func send_raw(client_id: int, data: PoolByteArray) -> void:
+	if not is_listening():
 		push_error("Wasp server is not started!")
 		return
 	
-	if not _wss.has_peer(id):
-		push_warning("No client with id %d" % id)
+	if not _wss.has_peer(client_id):
+		if _show_warnings:
+			push_warning("No client with id %d" % client_id)
 		return
 	
-	_wss.get_peer(id).put_packet(data)
+	_wss.get_peer(client_id).put_packet(data)
 
 
 # Send a raw message to all connected clients
-# see send_raw
 func broadcast_raw(data: PoolByteArray) -> void:
+	if not is_listening():
+		push_error("Wasp server is not started!")
+		return
+	
 	for id in _clients:
 		send_raw(id, data)
 
 
-# Send a message to a specific client
-func send(id: int, message_type: String, args: Dictionary = {}) -> void:
-	if not _wss.is_listening():
+# Send a message to a specific client.
+# This adds a "type" field to the message. If it already has one, it will be overwritten
+func send(client_id: int, message_type: String, message: Dictionary = {}) -> void:
+	if not is_listening():
 		push_error("Wasp server is not started!")
 		return
 	
-	if not _wss.has_peer(id):
-		push_warning("No client with id %d" % id)
+	if not _wss.has_peer(client_id):
+		if _show_warnings:
+			push_warning("No client with id %d" % client_id)
 		return
 	
-	var m: Dictionary = {
-		"type": message_type,
-		"id": _get_message_id()
-	}
-	if not args.empty():
-		m["args"] = args
+	message["type"] = message_type
 	
-	send_raw(id, JSON.print(m).to_utf8())
+	send_raw(client_id, JSON.print(message).to_utf8())
 
 
 # Send a message to all connected clients
-func broadcast(message_type: String, args: Dictionary = {}) -> void:
+func broadcast(message_type: String, message: Dictionary = {}) -> void:
+	if not is_listening():
+		push_error("Wasp server is not started!")
+		return
+	
+	message["type"] = message_type
+	var m = JSON.print(message).to_utf8()
+	
 	for id in _clients:
-		send(id, message_type, args)
+		send_raw(id, m)
