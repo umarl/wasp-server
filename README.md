@@ -1,15 +1,15 @@
 # Wasp Server
 
-It leverages the signal functionality to provide easier use of websockets. You create a listener to a message type and when one is received, it will automatically call the function on the wssigned object.
-It's built on top of signals and you can use functionalities that are available to it, such as bindings, oneshot connections, etc. 
+A [Godot](https://godotengine.org) addon that leverages the signal functionality to provide easier use of websockets. You create a listener to a message type and, when one is received, it will automatically call the function on the assigned object.
+It's built on top of signals and you can use functionalities that are available to it, such as bindings, oneshot connections, etc.
 
-A client version will be available in the future.
+Compatible with Godot Engine 3.3.x. A client version will be available in the future.
 
 ## How to use it
 
 Add a *WaspServer* node somewhere in your tree.
 
-Call `start_server()` to start the server. You can pass a number to specify the port (default is 14445). It returns [`Error`](https://docs.godotengine.org/en/stable/classes/class_@globalscope.html#enumerations-enum-error). If the value returned is not `OK`, it means the server was not initialized. You can check the error code on *[@GlobalScope Error enum](https://docs.godotengine.org/en/stable/classes/class_@globalscope.html#enumerations-enum-error)*.
+Call `start_server()` to start the server. You can pass a number to specify the port (default is 14445). It returns [`Error`](https://docs.godotengine.org/en/stable/classes/class_@globalscope.html#enum-globalscope-error). If the value returned is not `OK`, it means the server was not initialized. You can check the error code on *[@GlobalScope enum Error](https://docs.godotengine.org/en/stable/classes/class_@globalscope.html#enum-globalscope-error)*.
 
 Add and remove listeners to messages using `add_listener()` and `remove_listener()`. They are built upon [signals](https://docs.godotengine.org/en/stable/getting_started/step_by_step/signals.html) and use the same syntax as [`connect()`](https://docs.godotengine.org/en/stable/classes/class_object.html#class-object-method-connect) and [`disconnect()`](https://docs.godotengine.org/en/stable/classes/class_object.html#class-object-method-disconnect).
 
@@ -54,7 +54,7 @@ The messages received by the server should be a valid JSON object. The only requ
 
 Example:
 
-- **type**: string - the type of the message  __*required__
+- **type**: string __*required__ - the type of the message
 - **id**: int - a number to identify the message
 - **args**: object - a dictionary containing some data
 
