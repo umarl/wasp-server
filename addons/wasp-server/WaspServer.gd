@@ -58,42 +58,57 @@ func _on_client_disconnected(id: int, was_clean_close: bool) -> void:
 		emit_signal("no_clients")
 
 
+
+func _on_binary_message_received(packet: PoolByteArray) -> void:
+	if _show_warnings:
+			push_warning("Received binary packet")
+
+
+func _on_invalid_json_received(message: String, parse_result: JSONParseResult) -> void:
+	if parse_result.error != OK:
+		if _show_warnings:
+			push_warning("Error parsing JSON: %s\n%s" % [parse_result.error_string, message])
+	else:
+		if _show_warnings:
+			push_warning("JSON is not a dictionary\n%s" % parse_result.result)
+
+
 func _on_data_received(id: int) -> void:
 	var peer: WebSocketPeer = _wss.get_peer(id)
 	var packet: PoolByteArray = peer.get_packet()
 	
+	# Received binary message
 	if not peer.was_string_packet():
-		if _show_warnings:
-			push_warning("Received binary packet")
+		_on_binary_message_received(packet)
 		return
 	
 	# Parse and validate message
+	var msg_str = packet.get_string_from_utf8()
+	var jr: JSONParseResult = JSON.parse(msg_str)
 	
-	var jr: JSONParseResult = JSON.parse(packet.get_string_from_utf8())
-	
+	# JSON parsing failed
 	if jr.error != OK:
-		if _show_warnings:
-			push_warning("JSON parsing error: %s" % jr.error_string)
+		_on_invalid_json_received(msg_str, jr)
 		return
 	
+	# Parsed JSON is not a dictionary
 	if not jr.result is Dictionary:
-		if _show_warnings:
-			push_warning("JSON is not a dictionary\n%s" % jr.result)
+		_on_invalid_json_received(msg_str, jr)
 		return
 	
-	var data: Dictionary = jr.result
-	if not data.has("type"):
+	var message: Dictionary = jr.result
+	if not message.has("type"):
 		if _show_warnings:
-			push_warning("Message doesn't have a type\n%s" % data)
+			push_warning("Message doesn't have a type\n%s" % message)
 		return
 	
-	print("Message: %s" % data)
+	# print("Message: %s" % message)
 	
-	var sig: String = SIGNAL_PREFIX + data["type"]
+	var sig: String = SIGNAL_PREFIX + message["type"]
 	if has_user_signal(sig):
-		emit_signal(sig, data)
+		emit_signal(sig, message)
 	elif _show_warnings:
-		push_warning("No listener for message type %s" % data["type"])
+		push_warning("No listener for message type %s" % message["type"])
 
 
 
