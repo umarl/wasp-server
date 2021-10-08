@@ -8,7 +8,8 @@ Compatible with Godot Engine 3.3.x. A client version will be available in the fu
 
 ## How can this help me?
 
-If you are working with websockets/json and the messages have an identifier for what type of data they contain, it will make handling messages just as like using regular signals. You chose a port, tell the name of the type field and then add a listener for each type.
+If you are working with websockets/json and the messages have an identifier for what type of data they contain, it will make handling messages just like using regular signals.
+You chose a port, tell the name of the type field and then add a listener for each type.
 
 If you're going to exchange lots of binary messages, messages that are not valid jsons, or if they don't have a common identifier, this addon won't help you very much.
 
@@ -60,19 +61,21 @@ Be sure to remove listeners when you free objects. They can cause errors if left
 
 ## Messages
 
-The messages received by the server must be valid JSON objects and have a field specifying the type. The default field name is `type`, but it can be changed during server initialization. When a message is received, it will call all listeners added to that type and pass the parsed message to the registered methods.
+The messages received by the server must be valid JSON objects and have a field specifying the type. The default field name is `type`, but it can be changed during server initialization.
+When a message is received, it will call all listeners added to that type and pass the parsed message to the registered methods.
 
 
 Example:
 
 ```gdscript
+func _ready():
 	server = get_node("WaspServer")
 	
 	# add listener for "change-sprite"
 	server.add_listener("change-sprite", self, "on_change_sprite")
 	
 	# start server on port 14445 and uses field 'cmd' of messages to call listeners
-	server.start(14445, "cmd")
+	server.start_server(14445, "cmd")
 ```
 
 Message:
@@ -90,7 +93,7 @@ Message:
 
 When the message above is received by the server, it will call `on_change_scene`, passing the parsed message as parameter:
 
-```gscript
+```gdscript
 func on_change_sprite(message):
 	print("ID: " + str(message["id"])
 	# prints 'ID: 947'
