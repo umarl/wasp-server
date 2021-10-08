@@ -6,9 +6,10 @@ const SIGNAL_PREFIX = "WASP_"
 var _wss: WebSocketServer = WebSocketServer.new()
 var _clients: Array = []
 
+var _port := 14445
+var _type_field := "type"
 var _show_warnings := true
 var _is_started := false
-var _port := 14445
 
 signal client_connected(id)
 signal client_disconnected(id)
@@ -34,9 +35,14 @@ func _ready() -> void:
 	set_process(_is_started)
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if _wss.is_listening():
 		_wss.poll()
+
+
+func _show_warning(warning: String) -> void:
+	if _show_warnings:
+		push_warning(warning)
 
 
 func _on_client_connected(id: int, protocol: String) -> void:
@@ -58,28 +64,13 @@ func _on_client_disconnected(id: int, was_clean_close: bool) -> void:
 		emit_signal("no_clients")
 
 
-
-func _on_binary_message_received(packet: PoolByteArray) -> void:
-	if _show_warnings:
-			push_warning("Received binary packet")
-
-
-func _on_invalid_json_received(message: String, parse_result: JSONParseResult) -> void:
-	if parse_result.error != OK:
-		if _show_warnings:
-			push_warning("Error parsing JSON: %s\n%s" % [parse_result.error_string, message])
-	else:
-		if _show_warnings:
-			push_warning("JSON is not a dictionary\n%s" % parse_result.result)
-
-
 func _on_data_received(id: int) -> void:
 	var peer: WebSocketPeer = _wss.get_peer(id)
 	var packet: PoolByteArray = peer.get_packet()
 	
 	# Received binary message
 	if not peer.was_string_packet():
-		_on_binary_message_received(packet)
+		_on_binary_message_received(id, packet)
 		return
 	
 	# Parse and validate message
@@ -88,32 +79,48 @@ func _on_data_received(id: int) -> void:
 	
 	# JSON parsing failed
 	if jr.error != OK:
-		_on_invalid_json_received(msg_str, jr)
+		_on_invalid_json_received(id, msg_str, jr)
 		return
 	
 	# Parsed JSON is not a dictionary
 	if not jr.result is Dictionary:
-		_on_invalid_json_received(msg_str, jr)
+		_on_invalid_json_received(id, msg_str, jr)
 		return
 	
-	var message: Dictionary = jr.result
-	if not message.has("type"):
-		if _show_warnings:
-			push_warning("Message doesn't have a type\n%s" % message)
+	# Message doesn't have type
+	if not jr.result.has(_type_field):
+		_on_invalid_json_received(id, msg_str, jr)
 		return
 	
+	_on_message_received(jr.result)
+
+
+
+
+func _on_binary_message_received(client_id: int, packet: PoolByteArray) -> void:
+	_show_warning("Received binary packet")
+
+
+func _on_invalid_json_received(client_id: int, message: String, parse_result: JSONParseResult) -> void:
+	if parse_result.error != OK:
+		_show_warning("Error parsing JSON: %s\n%s" % [parse_result.error_string, message])
+	elif not parse_result.result is Dictionary:
+		_show_warning("JSON is not a dictionary\n%s" % parse_result.result)
+	else:
+		_show_warning("Message doesn't have the expected type field '%s'\n%s" % [_type_field, parse_result.result])
+
+
+func _on_message_received(message: Dictionary) -> void:
 	# print("Message: %s" % message)
-	
-	var sig: String = SIGNAL_PREFIX + message["type"]
+	var sig: String = SIGNAL_PREFIX + message[_type_field]
 	if has_user_signal(sig):
 		emit_signal(sig, message)
-	elif _show_warnings:
-		push_warning("No listener for message type %s" % message["type"])
+	else:
+		_show_warning("No listener for message of type %s" % message[_type_field])
 
 
 
-
-func start_server(port: int = 14445, show_warnings: bool = true) -> int:
+func start_server(port: int = 14445, message_type_field = "type", show_warnings: bool = true) -> int:
 	_wss.stop()
 	
 	# range of listening ports
@@ -127,8 +134,9 @@ func start_server(port: int = 14445, show_warnings: bool = true) -> int:
 		push_error("Wasp Server was not started. Error num %d" % err)
 		return err
 	_show_warnings = show_warnings
-	_is_started = true
 	_port = port
+	_type_field = message_type_field
+	_is_started = true
 	set_process(true)
 	return OK
 
@@ -179,8 +187,7 @@ func send_raw(client_id: int, data: PoolByteArray) -> void:
 		return
 	
 	if not _wss.has_peer(client_id):
-		if _show_warnings:
-			push_warning("No client with id %d" % client_id)
+		_show_warning("No client with id %d" % client_id)
 		return
 	
 	_wss.get_peer(client_id).put_packet(data)
@@ -204,11 +211,10 @@ func send(client_id: int, message_type: String, message: Dictionary = {}) -> voi
 		return
 	
 	if not _wss.has_peer(client_id):
-		if _show_warnings:
-			push_warning("No client with id %d" % client_id)
+		_show_warning("No client with id %d" % client_id)
 		return
 	
-	message["type"] = message_type
+	message[_type_field] = message_type
 	
 	send_raw(client_id, JSON.print(message).to_utf8())
 
@@ -219,8 +225,5 @@ func broadcast(message_type: String, message: Dictionary = {}) -> void:
 		push_error("Wasp server is not started!")
 		return
 	
-	message["type"] = message_type
-	var m = JSON.print(message).to_utf8()
-	
-	for id in _clients:
-		send_raw(id, m)
+	message[_type_field] = message_type
+	broadcast_raw(JSON.print(message).to_utf8())
