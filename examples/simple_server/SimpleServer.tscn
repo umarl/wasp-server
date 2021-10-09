@@ -6,10 +6,6 @@
 [node name="Server" type="CenterContainer"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 1.0
-margin_top = 1.0
-margin_right = 1.0
-margin_bottom = 1.0
 script = ExtResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -64,159 +60,183 @@ margin_bottom = 24.0
 text = "Start!"
 
 [node name="PanelListening" type="PanelContainer" parent="."]
-margin_left = 162.0
-margin_top = 150.0
-margin_right = 862.0
-margin_bottom = 450.0
-rect_min_size = Vector2( 700, 300 )
+margin_left = 112.0
+margin_right = 912.0
+margin_bottom = 600.0
+rect_min_size = Vector2( 800, 600 )
 
 [node name="vbox" type="VBoxContainer" parent="PanelListening"]
 margin_left = 7.0
 margin_top = 7.0
-margin_right = 693.0
-margin_bottom = 293.0
+margin_right = 793.0
+margin_bottom = 593.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="title" type="Label" parent="PanelListening/vbox"]
-margin_right = 686.0
+margin_right = 786.0
 margin_bottom = 14.0
 text = "Wasp Server Example"
 align = 1
 
 [node name="hbox" type="HBoxContainer" parent="PanelListening/vbox"]
 margin_top = 18.0
-margin_right = 686.0
+margin_right = 786.0
 margin_bottom = 32.0
 alignment = 1
 
 [node name="listening" type="Label" parent="PanelListening/vbox/hbox"]
-margin_left = 279.0
-margin_right = 395.0
+margin_left = 329.0
+margin_right = 445.0
 margin_bottom = 14.0
 text = "Listening on port: "
 
 [node name="LabelPort" type="Label" parent="PanelListening/vbox/hbox"]
-margin_left = 399.0
-margin_right = 407.0
+margin_left = 449.0
+margin_right = 457.0
 margin_bottom = 14.0
 text = "0"
 
 [node name="hsplit" type="HSplitContainer" parent="PanelListening/vbox"]
 margin_top = 36.0
-margin_right = 686.0
-margin_bottom = 286.0
+margin_right = 786.0
+margin_bottom = 586.0
 size_flags_vertical = 3
-split_offset = 80
 
 [node name="TestFields" type="VBoxContainer" parent="PanelListening/vbox/hsplit"]
-margin_right = 146.0
-margin_bottom = 250.0
+margin_right = 220.0
+margin_bottom = 550.0
+rect_min_size = Vector2( 220, 0 )
 
 [node name="title" type="Label" parent="PanelListening/vbox/hsplit/TestFields"]
-margin_right = 146.0
+margin_right = 220.0
 margin_bottom = 14.0
 text = "Test fields"
 
 [node name="hsep" type="HSeparator" parent="PanelListening/vbox/hsplit/TestFields"]
 margin_top = 18.0
-margin_right = 146.0
+margin_right = 220.0
 margin_bottom = 22.0
 
-[node name="sep" type="Control" parent="PanelListening/vbox/hsplit/TestFields"]
-margin_top = 26.0
-margin_right = 146.0
-margin_bottom = 40.0
-rect_min_size = Vector2( 0, 14 )
-
 [node name="text" type="Label" parent="PanelListening/vbox/hsplit/TestFields"]
-margin_top = 44.0
-margin_right = 146.0
-margin_bottom = 58.0
+margin_top = 26.0
+margin_right = 220.0
+margin_bottom = 40.0
 text = "Text:"
 
 [node name="LabelText" type="Label" parent="PanelListening/vbox/hsplit/TestFields"]
-margin_top = 62.0
-margin_right = 146.0
-margin_bottom = 76.0
+margin_top = 44.0
+margin_right = 220.0
+margin_bottom = 58.0
 size_flags_horizontal = 3
 text = "unset text"
 autowrap = true
 
 [node name="sep2" type="Control" parent="PanelListening/vbox/hsplit/TestFields"]
-margin_top = 80.0
-margin_right = 146.0
-margin_bottom = 94.0
-rect_min_size = Vector2( 0, 14 )
+margin_top = 62.0
+margin_right = 220.0
+margin_bottom = 68.0
+rect_min_size = Vector2( 0, 6 )
 
 [node name="number" type="Label" parent="PanelListening/vbox/hsplit/TestFields"]
-margin_top = 98.0
-margin_right = 146.0
-margin_bottom = 112.0
+margin_top = 72.0
+margin_right = 220.0
+margin_bottom = 86.0
 text = "Number:"
 
 [node name="LabelNumber" type="Label" parent="PanelListening/vbox/hsplit/TestFields"]
-margin_top = 116.0
-margin_right = 146.0
-margin_bottom = 130.0
+margin_top = 90.0
+margin_right = 220.0
+margin_bottom = 104.0
 text = "0"
 
 [node name="sep3" type="Control" parent="PanelListening/vbox/hsplit/TestFields"]
-margin_top = 134.0
-margin_right = 146.0
-margin_bottom = 148.0
-rect_min_size = Vector2( 0, 14 )
+margin_top = 108.0
+margin_right = 220.0
+margin_bottom = 114.0
+rect_min_size = Vector2( 0, 6 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="color" type="Label" parent="PanelListening/vbox/hsplit/TestFields"]
-margin_top = 152.0
-margin_right = 146.0
-margin_bottom = 166.0
+margin_top = 118.0
+margin_right = 220.0
+margin_bottom = 132.0
 text = "Color:"
 
 [node name="RectColor" type="ColorRect" parent="PanelListening/vbox/hsplit/TestFields"]
-margin_top = 170.0
-margin_right = 146.0
-margin_bottom = 202.0
+margin_top = 136.0
+margin_right = 220.0
+margin_bottom = 168.0
 rect_min_size = Vector2( 32, 32 )
 
+[node name="sep4" type="Control" parent="PanelListening/vbox/hsplit/TestFields"]
+margin_top = 172.0
+margin_right = 220.0
+margin_bottom = 178.0
+rect_min_size = Vector2( 0, 6 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="connected clients" type="Label" parent="PanelListening/vbox/hsplit/TestFields"]
+margin_top = 182.0
+margin_right = 220.0
+margin_bottom = 196.0
+text = "Connected Clients"
+
+[node name="scroll" type="ScrollContainer" parent="PanelListening/vbox/hsplit/TestFields"]
+margin_top = 200.0
+margin_right = 220.0
+margin_bottom = 550.0
+size_flags_vertical = 3
+scroll_horizontal_enabled = false
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ConnectedClientList" type="VBoxContainer" parent="PanelListening/vbox/hsplit/TestFields/scroll"]
+margin_right = 220.0
+margin_bottom = 350.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
 [node name="vbox_clients" type="VBoxContainer" parent="PanelListening/vbox/hsplit"]
-margin_left = 158.0
-margin_right = 686.0
-margin_bottom = 250.0
+margin_left = 232.0
+margin_right = 786.0
+margin_bottom = 550.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="clients" type="Label" parent="PanelListening/vbox/hsplit/vbox_clients"]
-margin_right = 528.0
+margin_right = 554.0
 margin_bottom = 14.0
-text = "Clients"
+text = "\"Remote\" Clients"
 
 [node name="hsep" type="HSeparator" parent="PanelListening/vbox/hsplit/vbox_clients"]
 margin_top = 18.0
-margin_right = 528.0
+margin_right = 554.0
 margin_bottom = 22.0
 
-[node name="scrollv" type="ScrollContainer" parent="PanelListening/vbox/hsplit/vbox_clients"]
+[node name="ButtonAddClient" type="Button" parent="PanelListening/vbox/hsplit/vbox_clients"]
 margin_top = 26.0
-margin_right = 528.0
-margin_bottom = 226.0
+margin_right = 554.0
+margin_bottom = 46.0
+text = "Add Remote Client"
+
+[node name="scrollv" type="ScrollContainer" parent="PanelListening/vbox/hsplit/vbox_clients"]
+margin_top = 50.0
+margin_right = 554.0
+margin_bottom = 550.0
 size_flags_vertical = 3
 scroll_horizontal_enabled = false
 
-[node name="ClientList" type="VBoxContainer" parent="PanelListening/vbox/hsplit/vbox_clients/scrollv"]
-margin_right = 528.0
+[node name="RemoteClientList" type="VBoxContainer" parent="PanelListening/vbox/hsplit/vbox_clients/scrollv"]
+margin_right = 554.0
 size_flags_horizontal = 3
 custom_constants/separation = 4
-
-[node name="ButtonAddClient" type="Button" parent="PanelListening/vbox/hsplit/vbox_clients"]
-margin_top = 230.0
-margin_right = 528.0
-margin_bottom = 250.0
-text = "Add Client"
 
 [node name="DialogError" type="AcceptDialog" parent="."]
 margin_left = 412.0

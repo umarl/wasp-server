@@ -1,0 +1,64 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://examples/simple_server/ConnectedClient.gd" type="Script" id=1]
+
+[node name="ConnectedClient" type="PanelContainer"]
+margin_right = 136.0
+margin_bottom = 80.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="vbox" type="VBoxContainer" parent="."]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 130.0
+margin_bottom = 79.0
+size_flags_horizontal = 3
+
+[node name="hbox" type="HBoxContainer" parent="vbox"]
+margin_right = 123.0
+margin_bottom = 20.0
+
+[node name="id" type="Label" parent="vbox/hbox"]
+margin_top = 3.0
+margin_right = 16.0
+margin_bottom = 17.0
+text = "id:"
+
+[node name="LabelID" type="Label" parent="vbox/hbox"]
+margin_left = 20.0
+margin_top = 3.0
+margin_right = 33.0
+margin_bottom = 17.0
+text = "-1"
+
+[node name="sep" type="Control" parent="vbox/hbox"]
+margin_left = 37.0
+margin_right = 37.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+
+[node name="ButtonDisconnect" type="Button" parent="vbox/hbox"]
+margin_left = 41.0
+margin_right = 123.0
+margin_bottom = 20.0
+text = "disconnect"
+
+[node name="InputData" type="LineEdit" parent="vbox"]
+margin_top = 24.0
+margin_right = 123.0
+margin_bottom = 48.0
+size_flags_horizontal = 3
+placeholder_text = "data"
+
+[node name="ButtonSendData" type="Button" parent="vbox"]
+margin_top = 52.0
+margin_right = 123.0
+margin_bottom = 72.0
+size_flags_horizontal = 3
+text = "Send data"
+
+[connection signal="pressed" from="vbox/hbox/ButtonDisconnect" to="." method="_on_ButtonDisconnect_pressed"]
+[connection signal="pressed" from="vbox/ButtonSendData" to="." method="_on_ButtonSendData_pressed"]
