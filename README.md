@@ -43,9 +43,10 @@ func _ready():
 	# starts server on port 9000
 	server.start_server(9000)
 
-func on_play_animation(message):
+func on_play_animation(client_id, message):
 	# called when the server receives a message of type "play_animation"
 	# eg. { "type": "play_animation" }
+	# 'client_id' is the id of the client that sent the message
 	# the parameter 'message' is the received message dictionary
 	pass
 
@@ -62,7 +63,7 @@ Be sure to remove listeners when you free objects. They can cause errors if left
 ## Messages
 
 The messages received by the server must be valid JSON objects and have a field specifying the type. The default field name is `type`, but it can be changed during server initialization.
-When a message is received, it will call all listeners added to that type and pass the parsed message to the registered methods.
+When a message is received, it will call all listeners added to that type and pass the client id and parsed message to the registered methods.
 
 
 Example:
@@ -91,10 +92,10 @@ Message:
 }
 ```
 
-When the message above is received by the server, it will call `on_change_scene`, passing the parsed message as parameter:
+When the message above is received by the server, it will call `on_change_scene`, passing the client_id and parsed message as parameters:
 
 ```gdscript
-func on_change_sprite(message):
+func on_change_sprite(client_id, message):
 	print("ID: " + str(message["id"])
 	# prints 'ID: 947'
 	

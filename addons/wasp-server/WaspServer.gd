@@ -92,7 +92,7 @@ func _on_data_received(id: int) -> void:
 		_on_invalid_json_received(id, msg_str, jr)
 		return
 	
-	_on_message_received(jr.result)
+	_on_message_received(id, jr.result)
 
 
 
@@ -110,11 +110,11 @@ func _on_invalid_json_received(client_id: int, message: String, parse_result: JS
 		_show_warning("Message doesn't have the expected type field '%s'\n%s" % [_type_field, parse_result.result])
 
 
-func _on_message_received(message: Dictionary) -> void:
+func _on_message_received(client_id: int, message: Dictionary) -> void:
 	# print("Message: %s" % message)
 	var sig: String = SIGNAL_PREFIX + message[_type_field]
 	if has_user_signal(sig):
-		emit_signal(sig, message)
+		emit_signal(sig, client_id, message)
 	else:
 		_show_warning("No listener for message of type %s" % message[_type_field])
 
